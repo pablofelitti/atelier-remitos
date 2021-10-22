@@ -14,6 +14,17 @@ function createImageBuffer(barcodeValue) {
     return canvas.toBuffer("image/png");
 }
 
+function addLeadingZeroes(num, totalDigits) {
+    if (totalDigits - num.toString().length > 0) {
+        let zeroes = ''
+        for (let i = 0; i < totalDigits - num.toString().length; i++) {
+            zeroes = zeroes + '0'
+        }
+        return zeroes + num.toString()
+    }
+    return num
+}
+
 app.get('/', async function (req, res) {
     let path = '/Users/pablofelitti/Downloads'
 
@@ -27,6 +38,8 @@ app.get('/', async function (req, res) {
             let filenameExtension = file.split('.')[1]
 
             let filenameTokens = file.split('.')[0].split('-');
+            filenameTokens[1] = parseInt(filenameTokens[1])
+            filenameTokens[2] = parseInt(filenameTokens[2])
 
             let chunk = fs.readFileSync(path + '/' + file)
 
@@ -35,8 +48,14 @@ app.get('/', async function (req, res) {
 
             for (const page of pages) {
 
-                const imageBuffer1 = createImageBuffer(filenameTokens[0]);
-                const imageBuffer2 = createImageBuffer(filenameTokens[1]);
+                let token1 = addLeadingZeroes(filenameTokens[0], 4);
+                let token2 = addLeadingZeroes(filenameTokens[1], 8);
+
+                let token3 = addLeadingZeroes(filenameTokens[2], 4);
+                let token4 = addLeadingZeroes(filenameTokens[3], 8);
+
+                const imageBuffer1 = createImageBuffer(token1 + token2);
+                const imageBuffer2 = createImageBuffer(token3 + token4);
                 const pngImage1 = await pdfDoc.embedPng(imageBuffer1)
                 const pngImage2 = await pdfDoc.embedPng(imageBuffer2)
 
@@ -59,8 +78,8 @@ app.get('/', async function (req, res) {
                     rotate: pdfLib.degrees(90)
                 })
 
-                filenameTokens[0]++
                 filenameTokens[1]++
+                filenameTokens[3]++
             }
 
             fs.writeFileSync(path + '/' + filenameWithoutExtension + '-barcode.' + filenameExtension, await pdfDoc.save());
