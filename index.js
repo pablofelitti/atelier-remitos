@@ -78,8 +78,8 @@ app.get('/', async function (req, res) {
                     rotate: pdfLib.degrees(90)
                 })
 
-                filenameTokens[1]++
-                filenameTokens[3]++
+                filenameTokens[1]--
+                filenameTokens[3]--
             }
 
             fs.writeFileSync(path + '/' + filenameWithoutExtension + '-barcode.' + filenameExtension, await pdfDoc.save());
