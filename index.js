@@ -25,7 +25,7 @@ function addLeadingZeroes(num, totalDigits) {
     return num
 }
 
-app.get('/', async function (req, res) {
+app.get('/factura-rosmino', async function (req, res) {
     let path = '/Users/pablofelitti/Downloads'
 
     let files = fs.readdirSync(path)
@@ -88,7 +88,54 @@ app.get('/', async function (req, res) {
         }
     }
 
-    res.send('Hello World')
+    res.send('Done!')
+})
+
+app.get('/remito-rosmino', async function (req, res) {
+    let path = '/Users/pablofelitti/Downloads'
+
+    let files = fs.readdirSync(path)
+
+    for (const file of files) {
+
+        try {
+            if (!file.toLowerCase().endsWith('.pdf')) continue;
+            let filenameWithoutExtension = file.split('.')[0]
+            let filenameExtension = file.split('.')[1]
+
+            let filenameToken = parseInt(file.split('.')[0])
+
+            let chunk = fs.readFileSync(path + '/' + file)
+
+            const pdfDoc = await pdfLib.PDFDocument.load(chunk)
+            const pages = pdfDoc.getPages()
+
+            for (const page of pages) {
+
+                let token = addLeadingZeroes(filenameToken, 8);
+
+                const imageBuffer = createImageBuffer(token);
+                const pngImage = await pdfDoc.embedPng(imageBuffer)
+
+                const pngDims = pngImage.scale(0.25)
+
+                page.drawImage(pngImage, {
+                    x: 400,
+                    y: 765,
+                    width: pngDims.width,
+                    height: pngDims.height
+                })
+
+                filenameToken++
+            }
+
+            fs.writeFileSync(path + '/' + filenameWithoutExtension + '-barcode.' + filenameExtension, await pdfDoc.save());
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    res.send('Done!')
 })
 
 app.listen(3000)
