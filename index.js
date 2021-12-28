@@ -10,7 +10,9 @@ const app = express()
 
 function createImageBuffer(barcodeValue) {
     let canvas = Canvas.createCanvas()
-    JsBarcode(canvas, barcodeValue)
+    JsBarcode(canvas, barcodeValue, {
+        margin: 0
+    })
     return canvas.toBuffer("image/png");
 }
 
@@ -117,11 +119,11 @@ app.get('/remito-rosmino', async function (req, res) {
                 const imageBuffer = createImageBuffer(token);
                 const pngImage = await pdfDoc.embedPng(imageBuffer)
 
-                const pngDims = pngImage.scale(0.25)
+                const pngDims = pngImage.scale(0.4)
 
                 page.drawImage(pngImage, {
-                    x: 400,
-                    y: 765,
+                    x: 475,
+                    y: 746,
                     width: pngDims.width,
                     height: pngDims.height
                 })
