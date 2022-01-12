@@ -50,14 +50,12 @@ app.get('/factura-rosmino', async function (req, res) {
 
             for (const page of pages) {
 
-                let token1 = addLeadingZeroes(filenameTokens[0], 4);
                 let token2 = addLeadingZeroes(filenameTokens[1], 8);
 
-                let token3 = addLeadingZeroes(filenameTokens[2], 4);
                 let token4 = addLeadingZeroes(filenameTokens[3], 8);
 
-                const imageBuffer1 = createImageBuffer(token1 + token2);
-                const imageBuffer2 = createImageBuffer(token3 + token4);
+                const imageBuffer1 = createImageBuffer(token2);
+                const imageBuffer2 = createImageBuffer(token4);
                 const pngImage1 = await pdfDoc.embedPng(imageBuffer1)
                 const pngImage2 = await pdfDoc.embedPng(imageBuffer2)
 
