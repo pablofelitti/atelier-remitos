@@ -78,8 +78,8 @@ app.get('/factura-rosmino', async function (req, res) {
                     rotate: pdfLib.degrees(90)
                 })
 
-                filenameTokens[1]--
-                filenameTokens[3]--
+                filenameTokens[1]++
+                filenameTokens[3]++
             }
 
             fs.writeFileSync(path + '/' + filenameWithoutExtension + '-barcode.' + filenameExtension, await pdfDoc.save());
@@ -91,7 +91,7 @@ app.get('/factura-rosmino', async function (req, res) {
     res.send('Done!')
 })
 
-app.get('/remito-rosmino', async function (req, res) {
+app.get('/nota-pedido-rosmino', async function (req, res) {
     let path = '/Users/pablofelitti/Downloads'
 
     let files = fs.readdirSync(path)
