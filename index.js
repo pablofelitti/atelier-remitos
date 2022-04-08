@@ -40,22 +40,23 @@ app.get('/factura-rosmino', async function (req, res) {
             let filenameExtension = file.split('.')[1]
 
             let filenameTokens = file.split('.')[0].split('-');
+            filenameTokens[0] = parseInt(filenameTokens[0])
             filenameTokens[1] = parseInt(filenameTokens[1])
-            filenameTokens[2] = parseInt(filenameTokens[2])
 
             let chunk = fs.readFileSync(path + '/' + file)
 
             const pdfDoc = await pdfLib.PDFDocument.load(chunk)
             const pages = pdfDoc.getPages()
 
-            for (const page of pages) {
+            for (let i = 0; i < pages.length; i++) {
 
-                let token2 = addLeadingZeroes(filenameTokens[1], 8);
+                let page = pages[i];
 
-                let token4 = addLeadingZeroes(filenameTokens[3], 8);
+                let token0 = addLeadingZeroes(filenameTokens[0], 8);
+                let token1 = addLeadingZeroes(filenameTokens[1], 8);
 
-                const imageBuffer1 = createImageBuffer(token2);
-                const imageBuffer2 = createImageBuffer(token4);
+                const imageBuffer1 = createImageBuffer(token0);
+                const imageBuffer2 = createImageBuffer(token1);
                 const pngImage1 = await pdfDoc.embedPng(imageBuffer1)
                 const pngImage2 = await pdfDoc.embedPng(imageBuffer2)
 
@@ -78,8 +79,10 @@ app.get('/factura-rosmino', async function (req, res) {
                     rotate: pdfLib.degrees(90)
                 })
 
-                filenameTokens[1]++
-                filenameTokens[3]++
+                if (i > 0 && i % 2 !== 0) {
+                    filenameTokens[0]++
+                    filenameTokens[1]++
+                }
             }
 
             fs.writeFileSync(path + '/' + filenameWithoutExtension + '-barcode.' + filenameExtension, await pdfDoc.save());
