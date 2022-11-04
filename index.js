@@ -27,7 +27,7 @@ function addLeadingZeroes(num, totalDigits) {
     return num
 }
 
-app.get('/factura-rosmino', async function (req, res) {
+app.get('/remito-rosmino', async function (req, res) {
     let path = '/Users/pablofelitti/Downloads'
 
     let files = fs.readdirSync(path)
