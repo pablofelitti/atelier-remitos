@@ -79,10 +79,8 @@ app.get('/remito-rosmino', async function (req, res) {
                     rotate: pdfLib.degrees(90)
                 })
 
-                if (i > 0 && i % 2 !== 0) {
-                    filenameTokens[0]++
-                    filenameTokens[1]++
-                }
+                filenameTokens[0]++
+                filenameTokens[1]++
             }
 
             fs.writeFileSync(path + '/' + filenameWithoutExtension + '-barcode.' + filenameExtension, await pdfDoc.save());
