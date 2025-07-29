@@ -65,7 +65,7 @@ app.get('/remito-rosmino', async function (req, res) {
 
                 page.drawImage(pngImage1, {
                     x: 565,
-                    y: 125,
+                    y: 175,
                     width: pngDims1.width,
                     height: pngDims1.height,
                     rotate: pdfLib.degrees(90)
@@ -73,7 +73,7 @@ app.get('/remito-rosmino', async function (req, res) {
 
                 page.drawImage(pngImage2, {
                     x: 565,
-                    y: 595,
+                    y: 645,
                     width: pngDims2.width,
                     height: pngDims2.height,
                     rotate: pdfLib.degrees(90)
