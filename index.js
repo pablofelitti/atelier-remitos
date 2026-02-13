@@ -1,12 +1,11 @@
-const express = require('express')
 const pdfLib = require('pdf-lib')
 const fs = require('fs')
+const readline = require('readline')
 
 const JsBarcode = require('jsbarcode')
 const Canvas = require("canvas")
 
-
-const app = express()
+const DOWNLOADS_PATH = '/Users/pablofelitti/Downloads'
 
 function createImageBuffer(barcodeValue) {
     let canvas = Canvas.createCanvas()
@@ -27,15 +26,16 @@ function addLeadingZeroes(num, totalDigits) {
     return num
 }
 
-app.get('/remito-rosmino', async function (req, res) {
-    let path = '/Users/pablofelitti/Downloads'
+async function processRemitoRosmino() {
+    let files = fs.readdirSync(DOWNLOADS_PATH)
+    let pdfFiles = files.filter(f => f.toLowerCase().endsWith('.pdf'))
+    console.log(`Se encontraron ${pdfFiles.length} archivos PDF`)
 
-    let files = fs.readdirSync(path)
-
-    for (const file of files) {
+    for (let idx = 0; idx < pdfFiles.length; idx++) {
+        const file = pdfFiles[idx]
 
         try {
-            if (!file.toLowerCase().endsWith('.pdf')) continue;
+            console.log(`[${idx + 1}/${pdfFiles.length}] Procesando ${file}...`)
             let filenameWithoutExtension = file.split('.')[0]
             let filenameExtension = file.split('.')[1]
 
@@ -43,7 +43,7 @@ app.get('/remito-rosmino', async function (req, res) {
             filenameTokens[0] = parseInt(filenameTokens[0])
             filenameTokens[1] = parseInt(filenameTokens[1])
 
-            let chunk = fs.readFileSync(path + '/' + file)
+            let chunk = fs.readFileSync(DOWNLOADS_PATH + '/' + file)
 
             const pdfDoc = await pdfLib.PDFDocument.load(chunk)
             const pages = pdfDoc.getPages()
@@ -83,30 +83,30 @@ app.get('/remito-rosmino', async function (req, res) {
                 filenameTokens[1]++
             }
 
-            fs.writeFileSync(path + '/' + filenameWithoutExtension + '-barcode.' + filenameExtension, await pdfDoc.save());
+            fs.writeFileSync(DOWNLOADS_PATH + '/' + filenameWithoutExtension + '-barcode.' + filenameExtension, await pdfDoc.save());
+            console.log(`[${idx + 1}/${pdfFiles.length}] ${file} -> ${filenameWithoutExtension}-barcode.${filenameExtension}`)
         } catch (e) {
-            console.log(e)
+            console.log(`[${idx + 1}/${pdfFiles.length}] Error procesando ${file}:`, e)
         }
     }
+}
 
-    res.send('Done!')
-})
+async function processNotaPedidoRosmino() {
+    let files = fs.readdirSync(DOWNLOADS_PATH)
+    let pdfFiles = files.filter(f => f.toLowerCase().endsWith('.pdf'))
+    console.log(`Se encontraron ${pdfFiles.length} archivos PDF`)
 
-app.get('/nota-pedido-rosmino', async function (req, res) {
-    let path = '/Users/pablofelitti/Downloads'
-
-    let files = fs.readdirSync(path)
-
-    for (const file of files) {
+    for (let idx = 0; idx < pdfFiles.length; idx++) {
+        const file = pdfFiles[idx]
 
         try {
-            if (!file.toLowerCase().endsWith('.pdf')) continue;
+            console.log(`[${idx + 1}/${pdfFiles.length}] Procesando ${file}...`)
             let filenameWithoutExtension = file.split('.')[0]
             let filenameExtension = file.split('.')[1]
 
             let filenameToken = parseInt(file.split('.')[0])
 
-            let chunk = fs.readFileSync(path + '/' + file)
+            let chunk = fs.readFileSync(DOWNLOADS_PATH + '/' + file)
 
             const pdfDoc = await pdfLib.PDFDocument.load(chunk)
             const pages = pdfDoc.getPages()
@@ -130,13 +130,31 @@ app.get('/nota-pedido-rosmino', async function (req, res) {
                 filenameToken++
             }
 
-            fs.writeFileSync(path + '/' + filenameWithoutExtension + '-barcode.' + filenameExtension, await pdfDoc.save());
+            fs.writeFileSync(DOWNLOADS_PATH + '/' + filenameWithoutExtension + '-barcode.' + filenameExtension, await pdfDoc.save());
+            console.log(`[${idx + 1}/${pdfFiles.length}] ${file} -> ${filenameWithoutExtension}-barcode.${filenameExtension}`)
         } catch (e) {
-            console.log(e)
+            console.log(`[${idx + 1}/${pdfFiles.length}] Error procesando ${file}:`, e)
         }
     }
+}
 
-    res.send('Done!')
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+
+console.log('Seleccione el tipo de procesamiento:')
+console.log('1) Remito Rosmino')
+console.log('2) Nota de Pedido Rosmino')
+
+rl.question('Opcion: ', async (answer) => {
+    rl.close()
+
+    if (answer === '1') {
+        await processRemitoRosmino()
+    } else if (answer === '2') {
+        await processNotaPedidoRosmino()
+    } else {
+        console.log('Opcion invalida')
+        process.exit(1)
+    }
+
+    console.log('Listo!')
 })
-
-app.listen(3000)

@@ -9,8 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "canvas": "^3.0.0-rc2",
-    "express": "^4.17.1",
+    "canvas": "^3.2.1",
     "jsbarcode": "^3.11.5",
     "pdf-lib": "^1.17.0"
   }
