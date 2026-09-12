@@ -206,9 +206,17 @@ def process_nota_pedido_rosmino():
             name_without_ext = file.rsplit('.', 1)[0]
             ext = file.rsplit('.', 1)[1]
 
-            token = int(name_without_ext)
+            tokens = name_without_ext.split('-')
+            token = int(tokens[0])
+            token_end = int(tokens[1])
 
             reader = PdfReader(os.path.join(DOWNLOADS_PATH, file))
+
+            expected_pages = token_end - token + 1
+            if len(reader.pages) != expected_pages:
+                print(f'[{idx + 1}/{len(pdf_files)}] Advertencia: {file} tiene {len(reader.pages)} hoja(s) '
+                      f'pero el rango {token}-{token_end} espera {expected_pages}')
+
             writer = PdfWriter()
 
             for page in reader.pages:
